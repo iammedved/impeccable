@@ -2537,6 +2537,14 @@ describe('resolveCacheCwd()', () => {
     assert.equal(resolveCacheCwd('', cwd), cwd);
     assert.equal(resolveCacheCwd(`${cwd}/../etc/Card.tsx`, cwd), cwd);
   });
+
+  it('does not escape a marker-less session cwd to an ancestor marker', () => {
+    const ancestor = path.join(cwd, 'ancestor');
+    const session = path.join(ancestor, 'workspace');
+    const file = path.join(session, 'src', 'Card.tsx');
+    fs.mkdirSync(path.join(ancestor, '.impeccable'), { recursive: true });
+    assert.equal(resolveCacheCwd(file, session), session);
+  });
 });
 
 describe('suppressionNotice()', () => {

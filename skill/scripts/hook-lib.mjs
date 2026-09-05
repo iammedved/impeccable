@@ -236,8 +236,8 @@ function looksLikeProjectRoot(dir) {
 // directory that is not itself a project (no .git, package.json, or
 // .impeccable), key to the edited file's nearest project root instead, so a
 // multi-project launch dir doesn't accumulate a shared cross-project cache
-// (issue #305). Climbing stops at the home dir, falling back to the session
-// cwd when no marker is found.
+// (issue #305). Only markers at or below the session cwd count: an ancestor
+// marker such as `/tmp/.impeccable` must never merge unrelated workspaces.
 export function resolveCacheCwd(primaryFile, sessionCwd) {
   const base = path.resolve(sessionCwd || process.cwd());
   if (!primaryFile || typeof primaryFile !== 'string' || hasPathTraversal(primaryFile)) return base;
@@ -248,14 +248,12 @@ export function resolveCacheCwd(primaryFile, sessionCwd) {
   } catch {
     return base;
   }
-  const home = path.resolve(os.homedir());
-  while (true) {
-    if (dir === home) return base;
+  while (isInsideProject(dir, base)) {
     if (looksLikeProjectRoot(dir)) return dir;
-    const parent = path.dirname(dir);
-    if (parent === dir) return base;
-    dir = parent;
+    if (dir === base) break;
+    dir = path.dirname(dir);
   }
+  return base;
 }
 
 // The detector's rules are web rules (HTML/CSS shapes), but a React Native or

@@ -14,7 +14,14 @@ This skill gives you the tools and permission to create design that earns to be 
 Core principles:
 - Go all out. No hedging, no shortcuts. The deliverable must be complete (except assets the user must provide).
 - Dream big and bold. Distinct, beautiful, outstanding and highly inspiring work.
-- Verify in bounded passes, not a loop, and the ceiling covers the whole cycle: screenshots, defect scans, micro-edits, and rebuilds alike. Build fully, inspect once with a batched round (desktop and mobile together on the web; the shipped device classes on a native platform), fix everything it shows in one batch, confirm with at most one more round, and stop polishing. Open-ended self-QA burns the user's money doing worse what the finish handoffs do better.
+- Verify in bounded passes, not a loop, and the ceiling covers the whole cycle: screenshots, defect scans, micro-edits, and rebuilds alike. Build fully, inspect once with a batched round (desktop and mobile together on the web; the shipped device classes on a native platform), fix everything it shows in one batch, confirm with at most one more round, and stop polishing. The ceiling limits cosmetic polish only: fix a known functional, accessibility, or security defect within authorized scope or report it as an unresolved blocker; never make it shippable because the budget ended. Open-ended self-QA burns the user's money doing worse what the finish handoffs do better.
+
+## Decision and delegation boundaries
+
+- “Show options” means present the options and wait for a selection; do not implement one as though it were approved.
+- “Implement the agreed direction” authorizes the ordinary implementation needed for that direction. “Choose yourself within these boundaries” does too: record the outcome as a delegated choice, never as user approval.
+- The command contracts remain authoritative: `shape` plans and stops before code, and `audit` reports findings without fixing the examined interface.
+- When the task has a genuinely independent asset-production, finish-review, or documentation handoff and the harness supports subagents, use the shipped specialist for that handoff. Give it the parent task’s approved scope, shared budget, and relevant evidence; do not let it broaden authority, redesign an agreed direction, or act as a second controller. If the harness lacks subagents, use only the matching degraded handoff.
 
 ## Setup
 

@@ -10,6 +10,8 @@ You apply one leased Impeccable live `manual_edit_apply` event to real source fi
 
 The parent live thread owns polling and protocol replies. You own source edits only.
 
+Work only within the parent task's approved scope and shared budget. A direction supplied by the parent can be a delegated choice, never evidence of user approval; do not broaden or replace it.
+
 ## Input Contract
 
 Expect a self-contained handoff with:

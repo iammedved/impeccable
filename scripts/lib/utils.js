@@ -52,7 +52,7 @@ export function restorePerProjectArtifacts(rootDir, stashed) {
   }
 }
 
-function readDetectorBundleScripts(rootDir) {
+function readDetectorBundleScripts(rootDir, detectorRuntimePath = null) {
   const detectorDir = path.join(rootDir, DETECTOR_BUNDLE_DIR);
   if (!fs.existsSync(detectorDir)) return [];
 
@@ -66,10 +66,13 @@ function readDetectorBundleScripts(rootDir) {
       }
       if (!entry.isFile()) continue;
       const relPath = path.relative(detectorDir, entryPath).split(path.sep).join('/');
+      const isDetectorEntrypoint = relPath === 'detect-antipatterns.mjs';
       scripts.push({
         name: `detector/${relPath}`,
-        content: fs.readFileSync(entryPath, 'utf-8'),
-        filePath: entryPath,
+        content: isDetectorEntrypoint && detectorRuntimePath
+          ? fs.readFileSync(detectorRuntimePath, 'utf-8')
+          : fs.readFileSync(entryPath, 'utf-8'),
+        filePath: isDetectorEntrypoint && detectorRuntimePath ? detectorRuntimePath : entryPath,
         generated: true,
       });
     }
@@ -85,6 +88,17 @@ function readDetectorBundleScripts(rootDir) {
       name: dest,
       content: fs.readFileSync(srcPath, 'utf-8'),
       filePath: srcPath,
+      generated: true,
+    });
+  }
+
+  if (detectorRuntimePath) {
+    const noticesPath = path.join(path.dirname(detectorRuntimePath), 'THIRD_PARTY_NOTICES.md');
+    if (!fs.existsSync(noticesPath)) throw new Error(`Detector runtime notices missing: ${noticesPath}`);
+    scripts.push({
+      name: 'detector/THIRD_PARTY_NOTICES.md',
+      content: fs.readFileSync(noticesPath, 'utf-8'),
+      filePath: noticesPath,
       generated: true,
     });
   }
@@ -246,7 +260,7 @@ export function readFilesRecursive(dir, fileList = []) {
  * detector). Naming it `SKILL.src.md` hides it from discovery so the CLI falls
  * through to a compiled harness dir (`.agents/skills/impeccable`) instead.
  */
-export function readSourceFiles(rootDir) {
+export function readSourceFiles(rootDir, { detectorRuntimePath = null } = {}) {
   const skillDir = path.join(rootDir, 'skill');
   const skills = [];
 
@@ -280,7 +294,7 @@ export function readSourceFiles(rootDir) {
   if (fs.existsSync(scriptsDir)) {
     scripts.push(...readSkillScripts(scriptsDir));
   }
-  scripts.push(...readDetectorBundleScripts(rootDir));
+  scripts.push(...readDetectorBundleScripts(rootDir, detectorRuntimePath));
 
   const agents = [];
   const agentsDir = path.join(skillDir, 'agents');

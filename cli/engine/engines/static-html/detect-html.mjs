@@ -118,27 +118,28 @@ async function detectHtml(filePath, options = {}) {
 
   let modules;
   try {
-    modules = await profileStepAsync(profile, {
-      engine: 'static-html',
-      phase: 'setup',
-      ruleId: 'import-static-parser',
-      target: filePath,
-    }, async () => {
-      const [htmlparser2, cssSelect, csstree, domutils] = await Promise.all([
-        import('htmlparser2'),
-        import('css-select'),
-        import('css-tree'),
-        import('domutils'),
-      ]);
-      return {
-        parseDocument: htmlparser2.parseDocument,
-        selectAll: cssSelect.selectAll,
-        selectOne: cssSelect.selectOne,
-        is: cssSelect.is,
-        csstree,
-        domutils,
-      };
-    });
+    modules = globalThis.__impeccableStaticHtmlModules
+      ?? await profileStepAsync(profile, {
+        engine: 'static-html',
+        phase: 'setup',
+        ruleId: 'import-static-parser',
+        target: filePath,
+      }, async () => {
+        const [htmlparser2, cssSelect, csstree, domutils] = await Promise.all([
+          import('htmlparser2'),
+          import('css-select'),
+          import('css-tree'),
+          import('domutils'),
+        ]);
+        return {
+          parseDocument: htmlparser2.parseDocument,
+          selectAll: cssSelect.selectAll,
+          selectOne: cssSelect.selectOne,
+          is: cssSelect.is,
+          csstree,
+          domutils,
+        };
+      });
   } catch (err) {
   if (!globalThis.__impeccableStaticHtmlWarned) {
     globalThis.__impeccableStaticHtmlWarned = true;
