@@ -25,6 +25,7 @@ import { createAllZips, createProviderZip } from './lib/zip.js';
 import { collectPluginVersions } from './lib/validate-plugin-versions.js';
 import { collectPluginManifestFindings } from './lib/validate-plugin-manifest.js';
 import { stageOpenAIPlugin } from './lib/openai-plugin.js';
+import { bundleDetectorRuntime } from './lib/detector-runtime-bundle.js';
 import { ANTIPATTERNS } from '../cli/engine/registry/antipatterns.mjs';
 // Sub-page generation is now handled by Astro content collections.
 
@@ -582,8 +583,15 @@ async function build() {
 
   const buildDir = path.join(ROOT_DIR, 'build');
 
+  // Bundle the static HTML/CSS parser closure before provider transforms. The
+  // provider payload has no package-manager install step at runtime.
+  const detectorRuntimePath = await bundleDetectorRuntime(
+    ROOT_DIR,
+    path.join(buildDir, 'detector-runtime', 'detect-antipatterns.mjs'),
+  );
+
   // Read source files (unified skills architecture)
-  const { skills } = readSourceFiles(ROOT_DIR);
+  const { skills } = readSourceFiles(ROOT_DIR, { detectorRuntimePath });
   const patterns = readPatterns(ROOT_DIR);
   const userInvocableCount = skills.filter(s => s.userInvocable).length;
   console.log(`📖 Read ${skills.length} skills (${userInvocableCount} user-invocable) and ${patterns.patterns.length + patterns.antipatterns.length} pattern categories\n`);
